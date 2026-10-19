@@ -1,0 +1,129 @@
+{
+  "version": 2,
+  "project": "TATA Gantt Traslado de Muestras",
+  "exportedAt": "2026-10-19T13:47:48.594Z",
+  "weekColumns": [
+    43,
+    44,
+    45
+  ],
+  "tasks": [
+    {
+      "id": 24,
+      "title": "Traslado Bodega de muestras hacía Bodega PF",
+      "owner": "Ingniería/UDC",
+      "progress": 50,
+      "weeks": [
+        43
+      ]
+    },
+    {
+      "id": 10,
+      "title": "Definir administración y responsables del inventario de muestras (Continua igual)",
+      "owner": "UDC/Muestras/Ingeniería",
+      "progress": 100,
+      "weeks": [
+        44
+      ]
+    },
+    {
+      "id": 22,
+      "title": "Traslado de área administrativa de muestras hacia PF",
+      "owner": "Ingeniería/UDC/Muestras",
+      "progress": 30,
+      "weeks": [
+        44
+      ]
+    },
+    {
+      "id": 19,
+      "title": "Incorporar facilitadores en ambiente de producción PF",
+      "owner": "Producción/Ingeniería/UDC",
+      "progress": 50,
+      "weeks": [
+        43
+      ]
+    },
+    {
+      "id": 25,
+      "title": "Incorporar facilitadores en ambiente de producción PC",
+      "owner": "Producción/Ingeniería/UDC",
+      "progress": 0,
+      "weeks": [
+        44
+      ]
+    },
+    {
+      "id": 1,
+      "title": "Implementación del proceso de arranque de órdenes de producción para la fabricación de muestras.",
+      "owner": "Ingeniería/Calidad/UDC",
+      "progress": 0,
+      "weeks": [
+        44
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Definir capacidad, set-up y espacios reservados para muestras",
+      "owner": "Ingeniería/UDC",
+      "progress": 25,
+      "weeks": [
+        44
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Definir retroalimentación y actualización de Hoja Técnica",
+      "owner": "Procesos/Desarrollo",
+      "progress": 0,
+      "weeks": [
+        43
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Definir rutas, seguimiento de muestras en Producción",
+      "owner": "UDC/Ingeniería/IT",
+      "progress": 0,
+      "weeks": [
+        45
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Definir revisión, fotografías, empaque, almacenamiento, custodia y entrega",
+      "owner": "UDC/Procesos/Ingeniería",
+      "progress": 0,
+      "weeks": [
+        44
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Definir responsable y proceso de planificación de muestras",
+      "owner": "Desarrollo/Planificación",
+      "progress": 0,
+      "weeks": [
+        44
+      ]
+    },
+    {
+      "id": 15,
+      "title": "Definir propuesta de incentivo y holgura de SAM para muestras",
+      "owner": "Ingeniería/UDC",
+      "progress": 50,
+      "weeks": [
+        43
+      ]
+    },
+    {
+      "id": 21,
+      "title": "Movimiento de línea de muestras (Artesanal) hacia PF",
+      "owner": "Ingeniería/Producción/UDC",
+      "progress": 0,
+      "weeks": [
+        45
+      ]
+    }
+  ]
+}
