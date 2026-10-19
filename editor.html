@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TATA | Gantt de Muestras · Editor</title>
+<style>
+:root {
+  --wine:#8b0015;--wine-dark:#6d0011;--wine-soft:#f9eef0;
+  --ink:#24262d;--muted:#67717d;--line:#e3d9dc;
+  --bg:#f5f5f7;--shadow:0 12px 36px rgba(49,28,32,.10);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 "Segoe UI",Arial,sans-serif}
+button,input{font:inherit}
+button{cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid #d89da7;outline-offset:1px}
+.shell{max-width:1700px;margin:20px auto;background:white;border:1px solid var(--line);box-shadow:var(--shadow)}
+header{background:var(--wine);color:white;padding:24px 30px;display:flex;justify-content:space-between;gap:20px;align-items:center}
+.eyebrow{letter-spacing:.12em;text-transform:uppercase;font-size:11px;font-weight:800;opacity:.8}
+h1{font-size:27px;line-height:1.15;letter-spacing:-.03em;margin:5px 0 4px}
+header p{margin:0;color:#ffdde2}
+.head-summary{min-width:180px;max-width:240px;text-align:right}
+.head-summary strong{font-size:28px}
+.head-summary small{display:block}
+.track{height:7px;border-radius:9px;background:#ffffff45;margin-top:8px;overflow:hidden}
+#bar-fill{height:100%;background:white;width:4%;transition:width .2s}
+.toolbar{display:flex;align-items:center;gap:9px;padding:16px 22px 12px;flex-wrap:wrap}
+button.btn{padding:9px 13px;border-radius:7px;border:1px solid #cbb6bb;background:#fff;color:var(--wine);font-weight:700;transition:background .12s}
+button.btn:hover{background:var(--wine-soft)}
+button.btn.primary{background:var(--wine);border-color:var(--wine);color:white}
+button.btn.primary:hover{background:var(--wine-dark)}
+button.btn:disabled,.tiny:disabled{opacity:.35;cursor:not-allowed}
+.btn.danger{color:#aa2537}
+.toolbar-divider{height:28px;width:1px;background:var(--line);margin:0 3px}
+.meta{display:flex;gap:10px;justify-content:space-between;align-items:center;padding:0 22px 14px;flex-wrap:wrap}
+.legend{color:var(--muted);font-size:13px}
+.legend b{color:var(--wine)}
+#status{color:#287a50;font-weight:700;font-size:12px;min-height:19px}
+.grid-wrap{overflow:auto;max-height:76vh;border-top:1px solid var(--line)}
+table{border-collapse:separate;border-spacing:0;width:100%;min-width:1180px}
+thead th{background:var(--wine);color:white;position:sticky;top:0;z-index:5;padding:13px 10px;border-right:1px solid #b53b4a;text-align:left;font-size:13px}
+thead th.week-heading{min-width:122px;padding:9px 6px;text-align:center}
+tbody td{padding:7px 8px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);vertical-align:middle}
+tbody tr:nth-child(odd) td{background:#fbf6f7}
+tbody tr:hover td{background:#fff0f1}
+tbody tr.drag-target td{box-shadow:inset 0 3px var(--wine)}
+.order{width:145px;min-width:145px;white-space:nowrap}
+.orderbox{display:flex;align-items:center;gap:5px}
+.row-no{font-weight:800;min-width:21px;text-align:center}
+.handle,.tiny{border:1px solid #dacdd0;background:#fff;border-radius:5px;color:var(--wine);height:29px;min-width:28px;padding:2px 6px;line-height:1}
+.handle{cursor:grab;font-size:18px}
+.handle:active{cursor:grabbing}
+.stack{display:flex;flex-direction:column;gap:3px}
+.stack .tiny{height:18px;min-width:25px;padding:0 4px;font-size:10px}
+td.task{min-width:430px;width:42%}
+td.owner{min-width:220px;width:19%}
+.field{display:block;width:100%;padding:10px 11px;border:1px solid #e0d9db;background:#fff;border-radius:6px;color:var(--ink);min-height:40px}
+td.task .field{min-width:410px}
+td.pct{min-width:110px;width:115px}
+.pct-input{width:72px;text-align:right}
+td.week{min-width:120px;text-align:center}
+.week-check{width:19px;height:19px;accent-color:var(--wine);cursor:pointer}
+.week-cell-active{background:#f5dfe4!important}
+.week-head-title{display:flex;align-items:center;justify-content:center;gap:5px}
+.week-number{width:49px;border:1px solid #c88e98;background:white;border-radius:5px;color:var(--wine);font-weight:800;text-align:center;padding:4px}
+.week-controls{display:flex;justify-content:center;gap:4px;margin-top:5px}
+.week-controls button{border:1px solid #cd7e8a;border-radius:4px;background:#ffffff20;color:white;height:24px;min-width:26px;font-size:15px}
+.week-controls button:hover{background:#ffffff40}
+.week-controls button:disabled{opacity:.35}
+.deletecol{min-width:92px;text-align:center}
+.delete-btn{border:1px solid #ead1d5;border-radius:6px;color:#a51e34;background:white;padding:6px 10px;font-weight:700}
+.delete-btn:hover{background:#ffecf0}
+.empty{padding:28px;text-align:center;color:var(--muted)}
+footer{border-top:1px solid var(--line);padding:13px 22px 18px;background:#fcfafb;color:var(--muted);font-size:12px}
+footer strong{color:var(--wine)}
+@media(max-width:730px){
+ .shell{margin:0;border:0}
+ header{padding:18px;align-items:flex-start;flex-direction:column;gap:10px}
+ h1{font-size:23px}
+ .head-summary{text-align:left;width:100%;max-width:none}
+ .toolbar{padding:12px}
+ .meta{padding:0 12px 12px}
+ .toolbar-divider{display:none}
+ .grid-wrap{max-height:70vh}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <header>
+    <div><div class="eyebrow">TATA · Ingeniería</div>
+      <h1>Gantt de Traslado de Muestras</h1>
+      <p>Actividades y semanas editables · planificación de traslado a PF</p>
+    </div>
+    <div class="head-summary"><strong id="total">4%</strong><small id="total-count">23 actividades · Avance promedio</small><div class="track"><div id="bar-fill"></div></div></div>
+  </header>
+  <div class="toolbar">
+    <button class="btn primary" id="add-task">+ Agregar actividad</button>
+    <button class="btn" id="add-week">+ Agregar semana</button>
+    <span class="toolbar-divider" aria-hidden="true"></span>
+    <button class="btn" id="export">Exportar respaldo JSON</button>
+    <button class="btn" id="import">Importar respaldo</button>
+    <input type="file" id="file" accept=".json,application/json" hidden>
+    <span class="toolbar-divider" aria-hidden="true"></span>
+    <button class="btn danger" id="restore">Restaurar plan inicial</button>
+  </div>
+  <div class="meta">
+    <div class="legend">
+      <b>Orden:</b> arrastra con ☰ o usa ▲ ▼.
+      <b>Semanas:</b> cambia el número WK, mueve con ← → o elimina con ×.
+      Marca las casillas para programar cada actividad.
+    </div>
+    <div id="status" role="status" aria-live="polite"></div>
+  </div>
+  <div class="grid-wrap">
+    <table aria-label="Gantt editable de muestras">
+      <thead><tr id="head-row"></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+  <footer>
+    <strong>Guardado local automático.</strong>
+    Los cambios de este archivo permanecen en el navegador donde lo utilices; no se publican en GitHub ni se comparten automáticamente.
+    Usa «Exportar respaldo JSON» para conservarlos antes de cambiar de equipo o archivo.
+  </footer>
+</div>
+<script>
+"use strict";
+const initial = [{"id":24,"title":"Traslado Bodega de muestras hacía Bodega PF","owner":"Ingniería/UDC","progress":50,"weeks":[43]},{"id":10,"title":"Definir administración y responsables del inventario de muestras (Continua igual)","owner":"UDC/Muestras/Ingeniería","progress":100,"weeks":[44]},{"id":22,"title":"Traslado de área administrativa de muestras hacia PF","owner":"Ingeniería/UDC/Muestras","progress":30,"weeks":[44]},{"id":19,"title":"Incorporar facilitadores en ambiente de producción PF","owner":"Producción/Ingeniería/UDC","progress":50,"weeks":[43]},{"id":25,"title":"Incorporar facilitadores en ambiente de producción PC","owner":"Producción/Ingeniería/UDC","progress":0,"weeks":[44]},{"id":1,"title":"Implementación del proceso de arranque de órdenes de producción para la fabricación de muestras.","owner":"Ingeniería/Calidad/UDC","progress":0,"weeks":[44]},{"id":2,"title":"Definir capacidad, set-up y espacios reservados para muestras","owner":"Ingeniería/UDC","progress":25,"weeks":[44]},{"id":5,"title":"Definir retroalimentación y actualización de Hoja Técnica","owner":"Procesos/Desarrollo","progress":0,"weeks":[43]},{"id":6,"title":"Definir rutas, seguimiento de muestras en Producción","owner":"UDC/Ingeniería/IT","progress":0,"weeks":[45]},{"id":7,"title":"Definir revisión, fotografías, empaque, almacenamiento, custodia y entrega","owner":"UDC/Procesos/Ingeniería","progress":0,"weeks":[44]},{"id":8,"title":"Definir responsable y proceso de planificación de muestras","owner":"Desarrollo/Planificación","progress":0,"weeks":[44]},{"id":15,"title":"Definir propuesta de incentivo y holgura de SAM para muestras","owner":"Ingeniería/UDC","progress":50,"weeks":[43]},{"id":21,"title":"Movimiento de línea de muestras (Artesanal) hacia PF","owner":"Ingeniería/Producción/UDC","progress":0,"weeks":[45]}];
+const STORAGE = "tata_gantt_muestras_editor_wk43_20261019";
+const WEEK_STORAGE = "tata_gantt_muestras_columns_wk43_20261019";
+const FIRST_WEEKS = [43,44,45];
+const clone = data => JSON.parse(JSON.stringify(data));
+const esc = value => String(value ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const wkLabel = w => "WK"+String(w).padStart(2,"0");
+const byId = id => tasks.find(t=>t.id === id);
+const statusEl = document.getElementById("status");
+const head = document.getElementById("head-row");
+const tbody = document.getElementById("rows");
+let tasks = clone(initial), weekColumns = [...FIRST_WEEKS];
+let draggingId = null;
+
+function normalizeTasks(data) {
+  if(!Array.isArray(data) || data.length > 500 || !data.every(x=>x && typeof x.title==="string" && Array.isArray(x.weeks))) {
+    throw new Error("El archivo no contiene actividades válidas");
+  }
+  return data.map((t,i)=>({
+    id: Number.isSafeInteger(Number(t.id)) ? Number(t.id) : i+1,
+    title: String(t.title).slice(0,500),
+    owner: String(t.owner??"").slice(0,300),
+    progress: Math.max(0,Math.min(100,Number(t.progress)||0)),
+    weeks: [...new Set(t.weeks.map(Number).filter(w=>Number.isInteger(w)&&w>=1&&w<=53))]
+  })).map((t,i,array)=>{
+    if(array.findIndex(x=>x.id===t.id)!==i) t.id = Math.max(0,...array.map(x=>x.id))+i+1;
+    return t;
+  });
+}
+function validColumns(cols) {
+  if(!Array.isArray(cols) || !cols.length || cols.length > 20) throw new Error("Lista de semanas inválida");
+  const normalized = cols.map(Number);
+  if(normalized.some(w=>!Number.isInteger(w)||w<1||w>53)||new Set(normalized).size!==normalized.length) {
+    throw new Error("Las semanas deben ser números únicos entre 1 y 53");
+  }
+  return normalized;
+}
+try {
+  const stored = localStorage.getItem(STORAGE);
+  if(stored) tasks = normalizeTasks(JSON.parse(stored));
+  const storedColumns = localStorage.getItem(WEEK_STORAGE);
+  if(storedColumns) weekColumns = validColumns(JSON.parse(storedColumns));
+} catch(e) { console.warn("No se pudo recuperar el guardado local:",e); }
+
+function persist(message="Guardado en este navegador ✓") {
+  try {
+    localStorage.setItem(STORAGE,JSON.stringify(tasks));
+    localStorage.setItem(WEEK_STORAGE,JSON.stringify(weekColumns));
+    statusEl.textContent=message;
+  } catch(e) {
+    statusEl.textContent="⚠ No se pudo guardar. Exporta un respaldo.";
+    console.warn(e);
+  }
+}
+function updateSummary(){
+  const p=tasks.length ? Math.round(tasks.reduce((n,t)=>n+t.progress,0)/tasks.length) : 0;
+  document.getElementById("total").textContent=p+"%";
+  document.getElementById("bar-fill").style.width=p+"%";
+  document.getElementById("total-count").textContent=tasks.length+" actividades · Avance promedio";
+}
+function renderHeader(){
+  const staticHeaders = [['Orden','order'],['Actividad','task'],['Responsable','owner'],['Avance %','pct']];
+  head.innerHTML = staticHeaders.map(([name,klass])=>'<th class="'+klass+'" scope="col">'+name+'</th>').join("")+
+    weekColumns.map((w,i)=>`
+      <th class="week-heading" scope="col">
+        <div class="week-head-title">
+          <label for="wki-${i}">WK</label>
+          <input id="wki-${i}" class="week-number" type="number" min="1" max="53" step="1"
+                 value="${w}" data-rename-week="${w}" title="Cambiar el número de esta semana"
+                 aria-label="Número de ${wkLabel(w)}">
+        </div>
+        <div class="week-controls">
+          <button type="button" data-week-left="${i}" ${i===0?'disabled':''} title="Mover ${wkLabel(w)} a la izquierda" aria-label="Mover ${wkLabel(w)} a la izquierda">←</button>
+          <button type="button" data-week-right="${i}" ${i===weekColumns.length-1?'disabled':''} title="Mover ${wkLabel(w)} a la derecha" aria-label="Mover ${wkLabel(w)} a la derecha">→</button>
+          <button type="button" data-remove-week="${w}" title="Quitar ${wkLabel(w)}" aria-label="Eliminar columna ${wkLabel(w)}">×</button>
+        </div>
+      </th>`).join("")+
+    '<th class="deletecol" scope="col">Acciones</th>';
+}
+function renderRows(){
+  tbody.innerHTML=tasks.length ? tasks.map((t,i)=>`
+    <tr data-id="${t.id}">
+      <td class="order">
+        <div class="orderbox">
+          <button type="button" class="handle" draggable="true" aria-label="Arrastrar actividad ${i+1}" title="Arrastra para cambiar de posición">☰</button>
+          <span class="row-no">${i+1}</span>
+          <span class="stack">
+            <button type="button" class="tiny" data-move-up="${t.id}" ${i===0?'disabled':''} aria-label="Subir actividad ${i+1}" title="Subir">▲</button>
+            <button type="button" class="tiny" data-move-down="${t.id}" ${i===tasks.length-1?'disabled':''} aria-label="Bajar actividad ${i+1}" title="Bajar">▼</button>
+          </span>
+        </div>
+      </td>
+      <td class="task"><input class="field" data-field="title" value="${esc(t.title)}" title="${esc(t.title)}" aria-label="Actividad ${i+1}"></td>
+      <td class="owner"><input class="field" data-field="owner" value="${esc(t.owner)}" title="${esc(t.owner)}" aria-label="Responsable actividad ${i+1}"></td>
+      <td class="pct"><input class="field pct-input" data-field="progress" type="number" min="0" max="100" step="1" value="${t.progress}" aria-label="Porcentaje actividad ${i+1}"></td>
+      ${weekColumns.map(w=>`<td class="week ${t.weeks.includes(w)?'week-cell-active':''}"><input type="checkbox" class="week-check"
+        data-week="${w}" ${t.weeks.includes(w)?'checked':''} aria-label="${wkLabel(w)} actividad ${i+1}"></td>`).join("")}
+      <td class="deletecol"><button type="button" class="delete-btn" data-delete="${t.id}">Eliminar</button></td>
+    </tr>`).join("") : `<tr><td class="empty" colspan="${weekColumns.length+5}">No hay actividades. Pulsa «Agregar actividad».</td></tr>`;
+}
+function render(){renderHeader();renderRows();updateSummary()}
+function moveTask(id,dir){
+  const i=tasks.findIndex(x=>x.id===id),dest=i+dir;
+  if(i<0||dest<0||dest>=tasks.length)return;
+  const tmp=tasks[i]; tasks[i]=tasks[dest]; tasks[dest]=tmp;
+  persist("Orden de actividades guardado ✓"); render();
+}
+function deleteWeek(w){
+  if(weekColumns.length<=1){alert("Debe quedar al menos una semana.");return;}
+  if(!confirm("¿Quitar "+wkLabel(w)+" del Gantt? También se eliminarán sus asignaciones en las actividades."))return;
+  weekColumns=weekColumns.filter(x=>x!==w);
+  tasks.forEach(t=>t.weeks=t.weeks.filter(x=>x!==w));
+  persist("Semana eliminada ✓");render();
+}
+function renameWeek(oldValue,newValue){
+  if(!Number.isInteger(newValue)||newValue<1||newValue>53){alert("Indica una semana entre 1 y 53.");renderHeader();return;}
+  if(oldValue===newValue)return;
+  if(weekColumns.includes(newValue)){alert(wkLabel(newValue)+" ya existe.");renderHeader();return;}
+  weekColumns[weekColumns.indexOf(oldValue)]=newValue;
+  tasks.forEach(t=>{t.weeks=t.weeks.map(w=>w===oldValue?newValue:w)});
+  persist("Semana y asignaciones actualizadas ✓");render();
+}
+head.addEventListener("change",e=>{
+  const src=e.target;
+  if(src.dataset.renameWeek!==undefined) renameWeek(Number(src.dataset.renameWeek),Number(src.value));
+});
+head.addEventListener("click",e=>{
+  const btn=e.target.closest("button");if(!btn)return;
+  if(btn.dataset.weekLeft!==undefined||btn.dataset.weekRight!==undefined){
+    const from=Number(btn.dataset.weekLeft??btn.dataset.weekRight);
+    const to=from+(btn.dataset.weekLeft!==undefined?-1:1);
+    if(to<0||to>=weekColumns.length)return;
+    [weekColumns[from],weekColumns[to]]=[weekColumns[to],weekColumns[from]];
+    persist("Orden de semanas guardado ✓");render();
+  }
+  if(btn.dataset.removeWeek!==undefined) deleteWeek(Number(btn.dataset.removeWeek));
+});
+tbody.addEventListener("input",e=>{
+  const src=e.target, tr=src.closest("tr");
+  if(!tr||!src.dataset.field)return;
+  const task=byId(Number(tr.dataset.id));if(!task)return;
+  if(src.dataset.field==="progress"){
+    if(src.value!==""&&Number.isFinite(Number(src.value))){
+      task.progress=Math.max(0,Math.min(100,Number(src.value)));
+      updateSummary();
+    }
+  }else{
+    task[src.dataset.field]=src.value;
+  }
+  persist();
+});
+tbody.addEventListener("change",e=>{
+  const src=e.target,tr=src.closest("tr");if(!tr)return;
+  const task=byId(Number(tr.dataset.id));if(!task)return;
+  if(src.dataset.week!==undefined){
+    const week=Number(src.dataset.week);
+    task.weeks=src.checked?[...new Set([...task.weeks,week])]:task.weeks.filter(w=>w!==week);
+    src.closest("td").classList.toggle("week-cell-active",src.checked);
+    persist("Programación guardada ✓");
+  }
+  if(src.dataset.field==="progress"){
+    task.progress=Math.max(0,Math.min(100,Number(src.value)||0));
+    src.value=task.progress;
+    updateSummary();persist();
+  }
+});
+tbody.addEventListener("click",e=>{
+  const btn=e.target.closest("button");if(!btn)return;
+  if(btn.dataset.moveUp!==undefined)moveTask(Number(btn.dataset.moveUp),-1);
+  if(btn.dataset.moveDown!==undefined)moveTask(Number(btn.dataset.moveDown),1);
+  if(btn.dataset.delete!==undefined){
+    const id=Number(btn.dataset.delete),task=byId(id);
+    if(task && confirm("¿Eliminar la actividad «"+task.title+"»?")){
+      tasks=tasks.filter(t=>t.id!==id);
+      persist("Actividad eliminada ✓");render();
+    }
+  }
+});
+tbody.addEventListener("dragstart",e=>{
+  if(!e.target.matches(".handle")){e.preventDefault();return;}
+  const tr=e.target.closest("tr");
+  draggingId=Number(tr.dataset.id);
+  e.dataTransfer.effectAllowed="move";
+  e.dataTransfer.setData("text/plain",String(draggingId));
+});
+tbody.addEventListener("dragover",e=>{
+  if(draggingId===null)return;
+  const tr=e.target.closest("tr[data-id]");if(!tr)return;
+  e.preventDefault();e.dataTransfer.dropEffect="move";
+  tbody.querySelectorAll(".drag-target").forEach(x=>x.classList.remove("drag-target"));
+  tr.classList.add("drag-target");
+});
+tbody.addEventListener("drop",e=>{
+  if(draggingId===null)return;
+  const target=e.target.closest("tr[data-id]");if(!target)return;
+  e.preventDefault();
+  const targetId=Number(target.dataset.id);
+  if(draggingId!==targetId){
+    const from=tasks.findIndex(x=>x.id===draggingId);
+    const item=tasks.splice(from,1)[0];
+    const at=tasks.findIndex(x=>x.id===targetId);
+    const rect=target.getBoundingClientRect();
+    const after=e.clientY>(rect.top+rect.height/2);
+    tasks.splice(at+(after?1:0),0,item);
+    persist("Orden de actividades guardado ✓");render();
+  }
+  draggingId=null;
+  tbody.querySelectorAll(".drag-target").forEach(x=>x.classList.remove("drag-target"));
+});
+tbody.addEventListener("dragend",()=>{
+  draggingId=null;
+  tbody.querySelectorAll(".drag-target").forEach(x=>x.classList.remove("drag-target"));
+});
+document.getElementById("add-task").addEventListener("click",()=>{
+  const id=Math.max(0,...tasks.map(t=>t.id))+1;
+  tasks.push({id,title:"Nueva actividad",owner:"",progress:0,weeks:[]});
+  persist("Actividad agregada ✓");render();
+  const row=tbody.querySelector('[data-id="'+id+'"]');
+  row?.scrollIntoView({block:"nearest",behavior:"smooth"});
+  row?.querySelector('[data-field="title"]')?.focus();
+  row?.querySelector('[data-field="title"]')?.select();
+});
+document.getElementById("add-week").addEventListener("click",()=>{
+  if(weekColumns.length>=20){alert("El límite de esta vista es de 20 columnas de semanas.");return;}
+  const start=(Math.max(...weekColumns)%53)+1;
+  const raw=prompt("Número de semana que quieres agregar (1 a 53):",String(start));
+  if(raw===null)return;
+  const w=Number(raw.trim());
+  if(raw.trim()===""||!Number.isInteger(w)||w<1||w>53){alert("Escribe una semana válida entre 1 y 53.");return;}
+  if(weekColumns.includes(w)){alert(wkLabel(w)+" ya está en el cronograma.");return;}
+  weekColumns.push(w);persist("Semana agregada ✓");render();
+});
+document.getElementById("restore").addEventListener("click",()=>{
+  if(!confirm("¿Restaurar el plan publicado originalmente? Esto sobrescribirá tus cambios locales."))return;
+  tasks=clone(initial);weekColumns=[...FIRST_WEEKS];persist("Plan original restaurado ✓");render();
+});
+document.getElementById("export").addEventListener("click",()=>{
+  const payload={version:2,project:"TATA Gantt Traslado de Muestras",exportedAt:new Date().toISOString(),weekColumns,tasks};
+  const obj=new Blob([JSON.stringify(payload,null,2)],{type:"application/json;charset=utf-8"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(obj);a.download="Gantt_Muestras_Respaldo.json";a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1500);
+  statusEl.textContent="Respaldo exportado ✓";
+});
+document.getElementById("import").addEventListener("click",()=>document.getElementById("file").click());
+document.getElementById("file").addEventListener("change",async e=>{
+  const file=e.target.files?.[0];if(!file)return;
+  try {
+    const loaded=JSON.parse(await file.text());
+    const candidate=Array.isArray(loaded)?loaded:loaded.tasks;
+    const incomingTasks=normalizeTasks(candidate);
+    const incomingColumns=loaded?.weekColumns ?
+      validColumns(loaded.weekColumns):
+      [...new Set([...FIRST_WEEKS,...incomingTasks.flatMap(t=>t.weeks)])];
+    if(!confirm("¿Importar "+incomingTasks.length+" actividades y sustituir los datos de esta copia?"))return;
+    tasks=incomingTasks;weekColumns=validColumns(incomingColumns);
+    persist("Respaldo importado ✓");render();
+  } catch(err){alert("No fue posible importar el archivo: "+err.message)}
+  finally {e.target.value=""}
+});
+render();
+</script>
+</body>
+</html>
